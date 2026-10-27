@@ -3,19 +3,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowRight,
   Check,
+  Clock,
   FileText,
+  MessageCircle,
   RotateCcw,
   Sparkles,
   UploadCloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, formatBytes } from "@/lib/utils";
+import type { AnalyzeResponse, ModuleSuggestion } from "@/lib/modules";
 
 type Stage = "idle" | "processing" | "complete";
+type Result = { documentTitle: string; modules: ModuleSuggestion[] };
 
-const ACCEPT = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.md";
+const ACCEPT = ".pdf,.docx";
+const MAX_BYTES = 4 * 1024 * 1024;
 
 const STEPS = [
   "I'm reading through it now…",
@@ -33,45 +37,96 @@ const panel = {
   transition: { duration: 0.45, ease },
 };
 
+function validate(f: File): string | null {
+  const name = f.name.toLowerCase();
+  if (!name.endsWith(".pdf") && !name.endsWith(".docx")) {
+    return "I can read PDF and Word (.docx) files for now. Could you try one of those?";
+  }
+  if (f.size > MAX_BYTES) {
+    return "That one's a bit big for me right now. Could you try a file under 4 MB?";
+  }
+  return null;
+}
+
 export function MagicUpload() {
   const [stage, setStage] = useState<Stage>("idle");
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<Result | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const runId = useRef(0);
 
-  const start = useCallback((f: File | undefined) => {
-    if (!f) return;
-    setFile(f);
-    setProgress(0);
-    setStage("processing");
-  }, []);
-
-  const reset = () => {
+  const reset = useCallback(() => {
+    runId.current++;
     setStage("idle");
     setFile(null);
     setProgress(0);
+    setResult(null);
     if (inputRef.current) inputRef.current.value = "";
-  };
+  }, []);
 
-  // Eased, slightly uneven progress so it feels like real work.
+  const start = useCallback(
+    async (f: File | undefined) => {
+      if (!f) return;
+      const problem = validate(f);
+      if (problem) {
+        setError(problem);
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+
+      const id = ++runId.current;
+      setError(null);
+      setResult(null);
+      setFile(f);
+      setProgress(0);
+      setStage("processing");
+
+      try {
+        const body = new FormData();
+        body.append("file", f);
+        const res = await fetch("/api/analyze", { method: "POST", body });
+        const data = (await res.json()) as AnalyzeResponse;
+        if (id !== runId.current) return;
+        if (!data.ok) throw new Error(data.message);
+        setResult({ documentTitle: data.documentTitle, modules: data.modules });
+      } catch (e) {
+        if (id !== runId.current) return;
+        setError(
+          e instanceof Error && e.message && !/fetch|json|network/i.test(e.message)
+            ? e.message
+            : "Something got in the way on my end. Want to try that again?"
+        );
+        setStage("idle");
+        setFile(null);
+        if (inputRef.current) inputRef.current.value = "";
+      }
+    },
+    []
+  );
+
+  // Eased, slightly uneven progress. It waits near the end until the real
+  // answer arrives, then glides to the finish.
   useEffect(() => {
     if (stage !== "processing") return;
     const id = setInterval(() => {
       setProgress((p) => {
-        const next = p + (p < 70 ? 2.2 : p < 92 ? 1.1 : 0.6) * (0.6 + Math.random() * 0.8);
-        return Math.min(next, 100);
+        const ceiling = result ? 100 : 92;
+        const base = result ? 4 : p < 70 ? 1.6 : p < 90 ? 0.5 : 0.08;
+        return Math.min(p + base * (0.6 + Math.random() * 0.8), ceiling);
       });
     }, 70);
     return () => clearInterval(id);
-  }, [stage]);
+  }, [stage, result]);
 
   useEffect(() => {
-    if (stage === "processing" && progress >= 100) {
+    if (stage === "processing" && result && progress >= 100) {
       const t = setTimeout(() => setStage("complete"), 450);
       return () => clearTimeout(t);
     }
-  }, [stage, progress]);
+  }, [stage, result, progress]);
 
   const stepIndex = Math.min(STEPS.length - 1, Math.floor((progress / 100) * STEPS.length));
 
@@ -139,9 +194,22 @@ export function MagicUpload() {
                   <p className="text-sm text-zinc-400">
                     Just drop it here, or{" "}
                     <span className="text-zinc-200 underline underline-offset-4">find it on your computer</span>
-                    . PDF, Word or PowerPoint all work.
+                    . PDF or Word (.docx), up to 4 MB.
                   </p>
                 </div>
+                <AnimatePresence>
+                  {error && (
+                    <motion.p
+                      role="alert"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="max-w-sm rounded-xl border border-amber-400/20 bg-amber-400/[0.06] px-4 py-2.5 text-sm text-amber-200"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </button>
             </motion.div>
           )}
@@ -206,51 +274,76 @@ export function MagicUpload() {
             </motion.div>
           )}
 
-          {stage === "complete" && (
+          {stage === "complete" && result && (
             <motion.div
               key="complete"
               {...panel}
-              className="flex min-h-[344px] flex-col items-center justify-center gap-6 px-8 py-10 text-center"
+              className="flex flex-col items-center gap-6 px-4 py-8 text-center sm:px-6"
             >
               <motion.div
                 initial={{ scale: 0, rotate: -30 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
-                className="flex h-20 w-20 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_60px_-8px_rgba(52,211,153,0.6)]"
+                className="flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_50px_-8px_rgba(52,211,153,0.6)]"
               >
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 12, delay: 0.3 }}
                 >
-                  <Check className="h-9 w-9 text-emerald-300" strokeWidth={2.4} />
+                  <Check className="h-7 w-7 text-emerald-300" strokeWidth={2.4} />
                 </motion.span>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.5, ease }}
+                transition={{ delay: 0.3, duration: 0.5, ease }}
                 className="space-y-1.5"
               >
                 <p className="text-xl font-semibold tracking-tight">
-                  I&apos;ve put together a few short lessons from this.
+                  I&apos;ve put together {result.modules.length} short lessons from this.
                 </p>
                 <p className="text-sm text-zinc-400">
                   They&apos;re based on{" "}
-                  <span className="text-zinc-200">{file?.name}</span>. Want to take a look?
+                  <span className="text-zinc-200">{result.documentTitle}</span>. Do any of these
+                  feel like the right place to start?
                 </p>
               </motion.div>
+
+              <ul className="w-full space-y-2.5 text-left">
+                {result.modules.map((m, i) => (
+                  <motion.li
+                    key={m.title}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45 + i * 0.1, duration: 0.5, ease }}
+                    className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+                  >
+                    <div className="mb-1.5 flex items-start justify-between gap-3">
+                      <h3 className="font-medium leading-snug tracking-tight">
+                        <span className="mr-2 font-mono text-xs text-violet-300">0{i + 1}</span>
+                        {m.title}
+                      </h3>
+                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-400">
+                        <Clock className="h-3 w-3" /> {m.minutes} min
+                      </span>
+                    </div>
+                    <p className="text-sm text-zinc-400">{m.hook}</p>
+                    <p className="mt-2 text-sm text-zinc-200">{m.takeaway}</p>
+                    <p className="mt-2.5 flex gap-2 text-sm italic text-violet-200/90">
+                      <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
+                      {m.question}
+                    </p>
+                  </motion.li>
+                ))}
+              </ul>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5, ease }}
-                className="flex flex-col gap-2.5 sm:flex-row"
+                transition={{ delay: 0.5 + result.modules.length * 0.1, duration: 0.5, ease }}
               >
-                <Button variant="accent" size="lg">
-                  Sure, show me <ArrowRight className="h-4 w-4" />
-                </Button>
                 <Button variant="ghost" size="lg" onClick={reset}>
                   <RotateCcw className="h-4 w-4" /> Try another document
                 </Button>
