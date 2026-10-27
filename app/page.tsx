@@ -23,11 +23,12 @@ export default function Home() {
       <section className="flex w-full flex-1 flex-col items-center justify-center gap-12 pb-24 pt-8 text-center">
         <div className="max-w-2xl space-y-5">
           <h1 className="text-gradient text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-            Turn any document into training your team finishes
+            What if your documents could teach themselves?
           </h1>
           <p className="mx-auto max-w-lg text-base text-zinc-400 sm:text-lg">
-            Drop in a policy, manual or deck. Nimbus makes short lessons and
-            quizzes in under a minute.
+            Learning something new at work is hard enough. Show me a policy,
+            manual or deck, and I&apos;ll help turn it into short lessons your
+            team can actually enjoy.
           </p>
         </div>
 

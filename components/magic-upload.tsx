@@ -18,10 +18,10 @@ type Stage = "idle" | "processing" | "complete";
 const ACCEPT = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.md";
 
 const STEPS = [
-  "Reading your document…",
-  "Finding the key ideas…",
-  "Writing short lessons…",
-  "Adding quick quizzes…",
+  "I'm reading through it now…",
+  "Looking for the ideas that matter most…",
+  "Turning them into short lessons…",
+  "Thinking up a few friendly questions…",
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -132,11 +132,14 @@ export function MagicUpload() {
                 </motion.div>
                 <div className="space-y-1.5">
                   <p className="text-lg font-medium tracking-tight">
-                    {dragging ? "Drop it here" : "Drop a document to begin"}
+                    {dragging
+                      ? "Oh, perfect — just let go"
+                      : "Got a document you want to turn into short lessons?"}
                   </p>
                   <p className="text-sm text-zinc-400">
-                    or <span className="text-zinc-200 underline underline-offset-4">browse files</span>
-                    {" · "}PDF, Word, PowerPoint
+                    Just drop it here, or{" "}
+                    <span className="text-zinc-200 underline underline-offset-4">find it on your computer</span>
+                    . PDF, Word or PowerPoint all work.
                   </p>
                 </div>
               </button>
@@ -196,7 +199,9 @@ export function MagicUpload() {
                     <div className="h-full w-1/2 animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   </div>
                 </div>
-                <p className="mt-2 text-xs tabular-nums text-zinc-500">{Math.floor(progress)}%</p>
+                <p className="mt-3 text-xs text-zinc-500">
+                  This usually takes a moment. Feel free to grab a coffee.
+                </p>
               </div>
             </motion.div>
           )}
@@ -228,10 +233,12 @@ export function MagicUpload() {
                 transition={{ delay: 0.35, duration: 0.5, ease }}
                 className="space-y-1.5"
               >
-                <p className="text-xl font-semibold tracking-tight">Your course is ready</p>
+                <p className="text-xl font-semibold tracking-tight">
+                  I&apos;ve put together a few short lessons from this.
+                </p>
                 <p className="text-sm text-zinc-400">
-                  12 short lessons and 8 quizzes from{" "}
-                  <span className="text-zinc-200">{file?.name}</span>
+                  They&apos;re based on{" "}
+                  <span className="text-zinc-200">{file?.name}</span>. Want to take a look?
                 </p>
               </motion.div>
 
@@ -242,10 +249,10 @@ export function MagicUpload() {
                 className="flex flex-col gap-2.5 sm:flex-row"
               >
                 <Button variant="accent" size="lg">
-                  Review course <ArrowRight className="h-4 w-4" />
+                  Sure, show me <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="lg" onClick={reset}>
-                  <RotateCcw className="h-4 w-4" /> Upload another
+                  <RotateCcw className="h-4 w-4" /> Try another document
                 </Button>
               </motion.div>
             </motion.div>
