@@ -12,6 +12,22 @@ cp .env.example .env.local   # add ANTHROPIC_API_KEY
 npm run dev
 ```
 
+## Deploy to Cloudflare Workers
+
+Built with Next.js 15 and [OpenNext for Cloudflare](https://opennext.js.org/cloudflare).
+Config lives in `wrangler.jsonc` and `open-next.config.ts`.
+
+```bash
+npm run preview                          # build and run locally in the Workers runtime
+npx wrangler secret put ANTHROPIC_API_KEY  # once per Worker
+npm run deploy                           # build and deploy
+```
+
+If you build on Cloudflare (Workers Builds), set the build command to
+`npx opennextjs-cloudflare build` and the deploy command to
+`npx opennextjs-cloudflare deploy`. Local development still uses `npm run dev`
+with `.env.local`.
+
 ## Brand
 
 Logo files live in `public/brand/`. The mark is an "n" arch (a soft cloud lobe)
