@@ -42,20 +42,37 @@ function SectionHeading({
 
 export default function Home() {
   return (
-    <main className="relative overflow-hidden">
+    <main className="relative overflow-x-clip">
       {/* ambient background */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]">
         <div className="bg-grid absolute inset-0" />
         <div className="absolute left-1/2 top-[-12%] h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-violet-600/20 blur-[120px]" />
       </div>
 
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6">
-        <a href="#top" aria-label="Nimbup home">
-          <Logo />
-        </a>
-        <Button asChild variant="ghost" size="sm">
-          <a href="#upload">Try it with a document</a>
-        </Button>
+      <header className="sticky top-0 z-40 border-b border-white/[0.05] bg-background/70 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3.5">
+          <a href="#top" aria-label="Nimbup home" className="shrink-0">
+            <Logo />
+          </a>
+          <nav aria-label="Sections" className="hidden items-center gap-1 text-sm text-zinc-400 md:flex">
+            {[
+              ["How it works", "#how"],
+              ["For your team", "#team"],
+              ["For leaders", "#leaders"],
+            ].map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                className="rounded-lg px-3 py-1.5 transition-colors hover:bg-white/[0.05] hover:text-zinc-100"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+          <Button asChild variant="ghost" size="sm">
+            <a href="#upload">Try it with a document</a>
+          </Button>
+        </div>
       </header>
 
       {/* 1. Hero */}
@@ -93,7 +110,7 @@ export default function Home() {
       </section>
 
       {/* 3. How it works */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
+      <section id="how" className="scroll-mt-16 mx-auto max-w-6xl px-4 py-24">
         <Reveal className="mx-auto mb-14 max-w-xl text-center">
           <p className="mb-3 text-sm font-medium text-violet-300">How it works</p>
           <h2 className="text-gradient text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -116,7 +133,7 @@ export default function Home() {
       </section>
 
       {/* 4. For employees */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
+      <section id="team" className="scroll-mt-16 mx-auto max-w-6xl px-4 py-24">
         <Reveal>
           <SectionHeading eyebrow="For your team" title="What if learning felt like a five-minute breather?">
             Each day there&apos;s one small lesson, short enough to fit between
@@ -137,7 +154,7 @@ export default function Home() {
       </section>
 
       {/* 5. For leaders */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
+      <section id="leaders" className="scroll-mt-16 mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
         <Reveal delay={0.12} className="order-2 md:order-1">
           <GapPanel />
         </Reveal>

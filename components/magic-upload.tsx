@@ -2,18 +2,27 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Eye, FileText, RotateCcw, Sparkles, UploadCloud } from "lucide-react";
+import {
+  ArrowDown,
+  Check,
+  Eye,
+  FileText,
+  RotateCcw,
+  Sparkles,
+  UploadCloud,
+} from "lucide-react";
 import { ModuleCard } from "@/components/module-card";
 import { Button } from "@/components/ui/button";
 import { cn, formatBytes } from "@/lib/utils";
 import type { AnalyzeResponse, ModuleSuggestion } from "@/lib/modules";
 import { SAMPLE_FILE, SAMPLE_RESULT } from "@/lib/sample";
 
-type Stage = "idle" | "processing" | "complete";
+type Stage = "idle" | "received" | "processing" | "complete";
 type Result = { documentTitle: string; modules: ModuleSuggestion[] };
 
 const ACCEPT = ".pdf,.docx";
 const MAX_BYTES = 4 * 1024 * 1024;
+const RECEIVED_MS = 900;
 
 const STEPS = [
   "I'm reading through it now…",
@@ -71,10 +80,13 @@ export function MagicUpload() {
     setFile(SAMPLE_FILE);
     setResult(null);
     setProgress(0);
-    setStage("processing");
+    setStage("received");
+    setTimeout(() => {
+      if (id === runId.current) setStage((s) => (s === "received" ? "processing" : s));
+    }, RECEIVED_MS);
     setTimeout(() => {
       if (id === runId.current) setResult(SAMPLE_RESULT);
-    }, 2200);
+    }, RECEIVED_MS + 2200);
   }, []);
 
   const start = useCallback(
@@ -93,7 +105,11 @@ export function MagicUpload() {
       setIsExample(false);
       setFile(f);
       setProgress(0);
-      setStage("processing");
+      // A short "got it" beat, then the work begins. The request starts now.
+      setStage("received");
+      setTimeout(() => {
+        if (id === runId.current) setStage((s) => (s === "received" ? "processing" : s));
+      }, RECEIVED_MS);
 
       try {
         const body = new FormData();
@@ -183,10 +199,10 @@ export function MagicUpload() {
                   start(e.dataTransfer.files?.[0]);
                 }}
                 className={cn(
-                  "group relative flex min-h-[270px] w-full flex-1 flex-col items-center justify-center gap-5 overflow-hidden rounded-[1.25rem] border border-dashed px-6 py-10 text-center transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60",
+                  "group relative flex min-h-[270px] w-full flex-1 flex-col items-center justify-center gap-5 overflow-hidden rounded-[1.25rem] border-2 px-6 py-10 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 [&>*]:pointer-events-none",
                   dragging
-                    ? "border-violet-400/80 bg-violet-500/10"
-                    : "border-white/15 bg-white/[0.015] hover:border-violet-400/40 hover:bg-white/[0.03]"
+                    ? "border-solid border-violet-400 bg-violet-500/[0.14] shadow-[0_0_0_6px_rgba(139,92,246,0.14),0_0_60px_-10px_rgba(139,92,246,0.7)]"
+                    : "border-dashed border-white/15 bg-white/[0.015] hover:border-violet-400/50 hover:bg-white/[0.035] hover:shadow-[0_0_50px_-14px_rgba(139,92,246,0.6)]"
                 )}
               >
                 {/* soft light that breathes behind the icon */}
@@ -219,11 +235,27 @@ export function MagicUpload() {
                   </motion.span>
                 ))}
                 <motion.div
-                  animate={{ y: dragging ? -6 : 0, scale: dragging ? 1.1 : 1 }}
+                  animate={{ y: dragging ? -8 : 0, scale: dragging ? 1.15 : 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.02] shadow-[0_0_40px_-8px_rgba(139,92,246,0.6)]"
+                  className="transition-transform duration-300 group-hover:-translate-y-1"
                 >
-                  <UploadCloud className="h-7 w-7 text-violet-300" strokeWidth={1.6} />
+                  <div
+                    className={cn(
+                      "flex h-16 w-16 items-center justify-center rounded-2xl border bg-gradient-to-b from-white/10 to-white/[0.02] shadow-[0_0_40px_-8px_rgba(139,92,246,0.6)] transition-colors",
+                      dragging ? "border-violet-300/60" : "border-white/10"
+                    )}
+                  >
+                    {dragging ? (
+                      <motion.span
+                        animate={{ y: [0, 4, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity }}
+                      >
+                        <ArrowDown className="h-7 w-7 text-violet-200" strokeWidth={1.8} />
+                      </motion.span>
+                    ) : (
+                      <UploadCloud className="h-7 w-7 text-violet-300" strokeWidth={1.6} />
+                    )}
+                  </div>
                 </motion.div>
                 <div className="space-y-1.5">
                   <p className="text-lg font-medium tracking-tight">
@@ -251,15 +283,38 @@ export function MagicUpload() {
                   )}
                 </AnimatePresence>
               </button>
-              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-2 py-2.5 text-sm text-zinc-500">
+              <div className="flex flex-col items-center justify-center gap-2 px-2 py-3 text-sm text-zinc-400 sm:flex-row sm:gap-3">
                 <span>No document handy?</span>
                 <button
                   type="button"
                   onClick={startExample}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 font-medium text-violet-300 transition-colors hover:bg-white/[0.05] hover:text-violet-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+                  className="inline-flex items-center gap-2 rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-2 font-medium text-violet-100 shadow-[0_0_30px_-10px_rgba(139,92,246,0.8)] transition-all hover:border-violet-300/60 hover:bg-violet-400/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
                 >
-                  <Eye className="h-4 w-4" /> See an example
+                  <Eye className="h-4 w-4 text-violet-300" /> See an example
                 </button>
+              </div>
+            </motion.div>
+          )}
+
+          {stage === "received" && (
+            <motion.div
+              key="received"
+              {...panel}
+              className="flex min-h-[344px] flex-col items-center justify-center gap-5 px-8 py-10 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0.4, rotate: -12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 15 }}
+                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-violet-300/40 bg-violet-400/15 shadow-[0_0_50px_-6px_rgba(139,92,246,0.9)]"
+              >
+                <FileText className="h-7 w-7 text-violet-200" strokeWidth={1.6} />
+              </motion.div>
+              <div className="space-y-1.5">
+                <p className="text-lg font-medium tracking-tight">Got it, thank you!</p>
+                <p className="max-w-[260px] truncate text-sm text-zinc-400">
+                  {file?.name} {file && <span className="text-zinc-500">· {formatBytes(file.size)}</span>}
+                </p>
               </div>
             </motion.div>
           )}

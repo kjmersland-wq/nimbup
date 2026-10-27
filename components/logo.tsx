@@ -7,7 +7,7 @@ export function LogoMark({ className }: { className?: string }) {
       viewBox="0 0 72 64"
       fill="none"
       aria-hidden
-      className={cn("h-7 w-auto", className)}
+      className={cn("h-8 w-auto", className)}
     >
       <defs>
         <linearGradient id="nimbup-up" x1="54" y1="50" x2="54" y2="20" gradientUnits="userSpaceOnUse">
@@ -38,7 +38,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <LogoMark />
-      <span className="text-lg font-semibold leading-none tracking-tight">
+      <span className="text-xl font-semibold leading-none tracking-tight">
         <span className="text-[#F1F5FF]">nimb</span>
         <span className="text-teal-300">up</span>
       </span>
