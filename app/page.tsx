@@ -1,39 +1,24 @@
-import {
-  ArrowUp,
-  Clock,
-  FileUp,
-  Rocket,
-  Timer,
-  Wand2,
-} from "lucide-react";
+import { ArrowUp, Rocket } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { MagicUpload } from "@/components/magic-upload";
+import { ChatMockup, GapPanel, LessonMockup, StepVisual } from "@/components/mockups";
 import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 
 const steps = [
   {
-    icon: FileUp,
     title: "Drop in what you already have",
     body: "A policy, a manual, a deck. Whatever your team keeps asking about.",
   },
   {
-    icon: Wand2,
     title: "I turn it into small lessons",
     body: "Short, friendly modules, each about the length of a coffee break.",
   },
   {
-    icon: Timer,
     title: "Your team learns a little each day",
     body: "No big course to block out a Friday for. One small thing at a time.",
   },
-];
-
-const gaps = [
-  { label: "Customer conversations", value: 82 },
-  { label: "Security basics", value: 64 },
-  { label: "Expense process", value: 38 },
-];
+] as const;
 
 function SectionHeading({
   eyebrow,
@@ -120,12 +105,8 @@ export default function Home() {
           {steps.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.1}>
               <div className="glass h-full rounded-2xl p-6 text-left transition-colors hover:border-white/20">
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
-                    <s.icon className="h-5 w-5 text-violet-300" strokeWidth={1.6} />
-                  </span>
-                  <span className="font-mono text-xs text-zinc-500">0{i + 1}</span>
-                </div>
+                <StepVisual step={(i + 1) as 1 | 2 | 3} />
+                <p className="mb-1 font-mono text-xs text-violet-300">0{i + 1}</p>
                 <h3 className="mb-1.5 text-lg font-medium tracking-tight">{s.title}</h3>
                 <p className="text-sm leading-relaxed text-zinc-400">{s.body}</p>
               </div>
@@ -135,7 +116,7 @@ export default function Home() {
       </section>
 
       {/* 4. For employees */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
+      <section className="mx-auto max-w-6xl px-4 py-24">
         <Reveal>
           <SectionHeading eyebrow="For your team" title="What if learning felt like a five-minute breather?">
             Each day there&apos;s one small lesson, short enough to fit between
@@ -145,58 +126,20 @@ export default function Home() {
           </SectionHeading>
         </Reveal>
 
-        <Reveal delay={0.12}>
-          <div className="glass glow-border space-y-3 rounded-3xl p-5">
-            <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
-              <div>
-                <p className="text-xs text-zinc-500">Today&apos;s lesson</p>
-                <p className="font-medium tracking-tight">Handling a frustrated customer</p>
-              </div>
-              <span className="flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-400">
-                <Clock className="h-3 w-3" /> 4 min
-              </span>
-            </div>
-            <div className="space-y-2.5 px-1 pt-1 text-sm">
-              <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-white/[0.06] px-4 py-2.5 text-zinc-200">
-                I&apos;ve been waiting a week for a reply. What happened?
-              </p>
-              <p className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-b from-violet-500 to-indigo-600 px-4 py-2.5 text-white">
-                I&apos;m really sorry about the wait. Can I look into it right now?
-              </p>
-              <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-white/[0.06] px-4 py-2.5 text-zinc-400">
-                That&apos;s a kind start. How might you find out what went wrong?
-              </p>
-            </div>
-          </div>
-        </Reveal>
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          <Reveal delay={0.05}>
+            <LessonMockup />
+          </Reveal>
+          <Reveal delay={0.15}>
+            <ChatMockup />
+          </Reveal>
+        </div>
       </section>
 
       {/* 5. For leaders */}
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
         <Reveal delay={0.12} className="order-2 md:order-1">
-          <div className="glass glow-border space-y-5 rounded-3xl p-6">
-            <div>
-              <p className="text-xs text-zinc-500">Where would a little help go a long way?</p>
-              <p className="font-medium tracking-tight">Team confidence, this month</p>
-            </div>
-            <ul className="space-y-4">
-              {gaps.map((g) => (
-                <li key={g.label}>
-                  <div className="mb-1.5 flex justify-between text-sm">
-                    <span className="text-zinc-300">{g.label}</span>
-                    <span className="tabular-nums text-zinc-500">{g.value}%</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300"
-                      style={{ width: `${g.value}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-zinc-500">Example numbers, just to show the idea.</p>
-          </div>
+          <GapPanel />
         </Reveal>
 
         <Reveal className="order-1 md:order-2">

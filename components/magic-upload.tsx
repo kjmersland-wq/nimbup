@@ -2,18 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Check,
-  Clock,
-  FileText,
-  MessageCircle,
-  RotateCcw,
-  Sparkles,
-  UploadCloud,
-} from "lucide-react";
+import { Check, Eye, FileText, RotateCcw, Sparkles, UploadCloud } from "lucide-react";
+import { ModuleCard } from "@/components/module-card";
 import { Button } from "@/components/ui/button";
 import { cn, formatBytes } from "@/lib/utils";
 import type { AnalyzeResponse, ModuleSuggestion } from "@/lib/modules";
+import { SAMPLE_FILE, SAMPLE_RESULT } from "@/lib/sample";
 
 type Stage = "idle" | "processing" | "complete";
 type Result = { documentTitle: string; modules: ModuleSuggestion[] };
@@ -50,7 +44,8 @@ function validate(f: File): string | null {
 
 export function MagicUpload() {
   const [stage, setStage] = useState<Stage>("idle");
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<{ name: string; size: number } | null>(null);
+  const [isExample, setIsExample] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
@@ -62,9 +57,24 @@ export function MagicUpload() {
     runId.current++;
     setStage("idle");
     setFile(null);
+    setIsExample(false);
     setProgress(0);
     setResult(null);
     if (inputRef.current) inputRef.current.value = "";
+  }, []);
+
+  // Shows a finished result without uploading anything.
+  const startExample = useCallback(() => {
+    const id = ++runId.current;
+    setError(null);
+    setIsExample(true);
+    setFile(SAMPLE_FILE);
+    setResult(null);
+    setProgress(0);
+    setStage("processing");
+    setTimeout(() => {
+      if (id === runId.current) setResult(SAMPLE_RESULT);
+    }, 2200);
   }, []);
 
   const start = useCallback(
@@ -80,6 +90,7 @@ export function MagicUpload() {
       const id = ++runId.current;
       setError(null);
       setResult(null);
+      setIsExample(false);
       setFile(f);
       setProgress(0);
       setStage("processing");
@@ -157,7 +168,7 @@ export function MagicUpload() {
 
         <AnimatePresence mode="wait" initial={false}>
           {stage === "idle" && (
-            <motion.div key="idle" {...panel} className="h-full">
+            <motion.div key="idle" {...panel} className="flex min-h-[344px] flex-col gap-1">
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
@@ -172,12 +183,41 @@ export function MagicUpload() {
                   start(e.dataTransfer.files?.[0]);
                 }}
                 className={cn(
-                  "group flex min-h-[344px] w-full flex-col items-center justify-center gap-5 rounded-[1.25rem] border border-dashed px-6 py-10 text-center transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60",
+                  "group relative flex min-h-[270px] w-full flex-1 flex-col items-center justify-center gap-5 overflow-hidden rounded-[1.25rem] border border-dashed px-6 py-10 text-center transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60",
                   dragging
                     ? "border-violet-400/80 bg-violet-500/10"
-                    : "border-white/10 hover:border-white/25 hover:bg-white/[0.03]"
+                    : "border-white/15 bg-white/[0.015] hover:border-violet-400/40 hover:bg-white/[0.03]"
                 )}
               >
+                {/* soft light that breathes behind the icon */}
+                <motion.span
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-[34%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-500/25 blur-3xl"
+                  animate={{ opacity: [0.35, 0.8, 0.35], scale: [1, 1.15, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                />
+                {/* file types drifting gently, so it's clear what goes here */}
+                {(
+                  [
+                    { label: "PDF", pos: "left-[8%] top-[14%]", rotate: -8, delay: 0 },
+                    { label: "DOCX", pos: "right-[8%] top-[22%]", rotate: 7, delay: 1.2 },
+                  ] as const
+                ).map((c) => (
+                  <motion.span
+                    key={c.label}
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute hidden items-center gap-1.5 rounded-lg border border-white/10 bg-surface/80 px-2.5 py-1.5 text-[11px] font-medium text-zinc-400 shadow-lg sm:flex",
+                      c.pos
+                    )}
+                    style={{ rotate: c.rotate }}
+                    animate={{ y: [0, -7, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: c.delay }}
+                  >
+                    <FileText className="h-3.5 w-3.5 text-violet-300" />
+                    {c.label}
+                  </motion.span>
+                ))}
                 <motion.div
                   animate={{ y: dragging ? -6 : 0, scale: dragging ? 1.1 : 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 18 }}
@@ -211,6 +251,16 @@ export function MagicUpload() {
                   )}
                 </AnimatePresence>
               </button>
+              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-2 py-2.5 text-sm text-zinc-500">
+                <span>No document handy?</span>
+                <button
+                  type="button"
+                  onClick={startExample}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 font-medium text-violet-300 transition-colors hover:bg-white/[0.05] hover:text-violet-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+                >
+                  <Eye className="h-4 w-4" /> See an example
+                </button>
+              </div>
             </motion.div>
           )}
 
@@ -301,6 +351,11 @@ export function MagicUpload() {
                 transition={{ delay: 0.3, duration: 0.5, ease }}
                 className="space-y-1.5"
               >
+                {isExample && (
+                  <p className="mx-auto w-fit rounded-full border border-violet-400/30 bg-violet-400/10 px-3 py-0.5 text-xs font-medium text-violet-200">
+                    An example, so nothing was uploaded
+                  </p>
+                )}
                 <p className="text-xl font-semibold tracking-tight">
                   I&apos;ve put together {result.modules.length} short lessons from this.
                 </p>
@@ -318,23 +373,8 @@ export function MagicUpload() {
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45 + i * 0.1, duration: 0.5, ease }}
-                    className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
                   >
-                    <div className="mb-1.5 flex items-start justify-between gap-3">
-                      <h3 className="font-medium leading-snug tracking-tight">
-                        <span className="mr-2 font-mono text-xs text-violet-300">0{i + 1}</span>
-                        {m.title}
-                      </h3>
-                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-400">
-                        <Clock className="h-3 w-3" /> {m.minutes} min
-                      </span>
-                    </div>
-                    <p className="text-sm text-zinc-400">{m.hook}</p>
-                    <p className="mt-2 text-sm text-zinc-200">{m.takeaway}</p>
-                    <p className="mt-2.5 flex gap-2 text-sm italic text-violet-200/90">
-                      <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
-                      {m.question}
-                    </p>
+                    <ModuleCard module={m} index={i} />
                   </motion.li>
                 ))}
               </ul>
@@ -345,7 +385,8 @@ export function MagicUpload() {
                 transition={{ delay: 0.5 + result.modules.length * 0.1, duration: 0.5, ease }}
               >
                 <Button variant="ghost" size="lg" onClick={reset}>
-                  <RotateCcw className="h-4 w-4" /> Try another document
+                  <RotateCcw className="h-4 w-4" />{" "}
+                  {isExample ? "Now try one of yours" : "Try another document"}
                 </Button>
               </motion.div>
             </motion.div>
