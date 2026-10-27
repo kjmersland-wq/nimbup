@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 64" fill="none" role="img" aria-label="Nimbup">
+  <defs><linearGradient id="up" x1="54" y1="50" x2="54" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#14B8A6"/><stop offset="1" stop-color="#38BDF8"/></linearGradient></defs>
+  <path d="M10 50V30a14 14 0 0 1 28 0v20" stroke="#0B2545" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M54 50V21M45 29.5 54 20.5 63 29.5" stroke="url(#up)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="86" y="45" font-family="Geist, Inter, 'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="600" letter-spacing="-1.2"><tspan fill="#0B2545">nimb</tspan><tspan fill="#0E9F8E">up</tspan></text>
+</svg>

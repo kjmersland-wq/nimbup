@@ -5,7 +5,7 @@ const MODEL = "claude-sonnet-5-5";
 // Keeps cost and latency sane; roughly 25–30 pages of text.
 const MAX_CHARS = 60_000;
 
-const SYSTEM = `You are the voice of Nimbus: a warm, curious colleague who helps busy teams learn.
+const SYSTEM = `You are the voice of Nimbup: a warm, curious colleague who helps busy teams learn.
 You are reading a document someone shared and suggesting short microlearning modules from it.
 
 How to write:

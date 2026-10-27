@@ -14,9 +14,16 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Nimbus — Turn any document into training",
+  metadataBase: new URL("https://nimbup.com"),
+  title: "Nimbup — Turn any document into short lessons",
   description:
-    "Drop in a document and Nimbus turns it into short lessons and quizzes your team will actually finish.",
+    "Drop in a document and Nimbup turns it into short lessons your team will actually finish.",
+  openGraph: {
+    title: "Nimbup",
+    description: "Turn any document into short lessons your team will actually finish.",
+    url: "https://nimbup.com",
+    siteName: "Nimbup",
+  },
 };
 
 export default function RootLayout({

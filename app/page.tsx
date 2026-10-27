@@ -3,10 +3,10 @@ import {
   Clock,
   FileUp,
   Rocket,
-  Sparkles,
   Timer,
   Wand2,
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { MagicUpload } from "@/components/magic-upload";
 import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
@@ -65,11 +65,8 @@ export default function Home() {
       </div>
 
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6">
-        <a href="#top" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-b from-violet-400 to-indigo-600 shadow-[0_0_20px_-2px_rgba(139,92,246,0.8)]">
-            <Sparkles className="h-4 w-4 text-white" />
-          </span>
-          Nimbus
+        <a href="#top" aria-label="Nimbup home">
+          <Logo />
         </a>
         <Button asChild variant="ghost" size="sm">
           <a href="#upload">Try it with a document</a>
@@ -204,7 +201,7 @@ export default function Home() {
 
         <Reveal className="order-1 md:order-2">
           <SectionHeading eyebrow="For leaders" title="Wouldn't it help to see where your team needs you?">
-            Nimbus quietly shows where people feel confident and where a bit of
+            Nimbup quietly shows where people feel confident and where a bit of
             support would matter. And when something changes, a new policy or a
             new product, you can share it with everyone as short lessons the
             same afternoon.
@@ -239,7 +236,7 @@ export default function Home() {
       </section>
 
       <footer className="mx-auto max-w-6xl border-t border-white/[0.06] px-4 py-8 text-center text-xs text-zinc-500">
-        Nimbus · Made with care.
+        Nimbup · nimbup.com · Made with care.
       </footer>
     </main>
   );

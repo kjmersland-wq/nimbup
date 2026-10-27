@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nimbup
 
-## Getting Started
+AI-powered microlearning and onboarding. Drop in a document, get short lessons.
 
-First, run the development server:
+Domain: **nimbup.com**
+
+## Develop
 
 ```bash
+npm install
+cp .env.example .env.local   # add ANTHROPIC_API_KEY
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Brand
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Logo files live in `public/brand/`. The mark is an "n" arch (a soft cloud lobe)
+beside a rising arrow: lightness plus growth.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| File | Use |
+| --- | --- |
+| `nimbup-logo.svg` | Primary logo on white or light backgrounds (decks, docs, email) |
+| `nimbup-logo-on-dark.svg` | Primary logo on dark backgrounds |
+| `nimbup-icon.svg` | Icon only on light backgrounds (avatars, small UI) |
+| `nimbup-icon-on-dark.svg` | Icon only on dark backgrounds |
+| `app/icon.svg` | Favicon: icon on a navy tile, served automatically by Next.js |
+| `components/logo.tsx` | In-app header logo (dark theme), renders with the Geist font |
 
-## Learn More
+Colors: navy `#0B2545`, teal `#14B8A6`, sky `#38BDF8`, teal on dark `#2DD4BF`,
+ice `#F1F5FF`.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The wordmark in the SVG files is live text (Geist, falling back to Inter or
+Arial). Before print or partner use, outline the text in a design tool so it
+renders identically everywhere. Give the logo clear space of at least half the
+icon's height, and keep it above 20 px tall.
