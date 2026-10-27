@@ -1,8 +1,8 @@
 import {
   ArrowUp,
-  BarChart3,
+  Clock,
   FileUp,
-  MessageCircleHeart,
+  Rocket,
   Sparkles,
   Timer,
   Wand2,
@@ -20,32 +20,40 @@ const steps = [
   {
     icon: Wand2,
     title: "I turn it into small lessons",
-    body: "Short, friendly modules, each one about the time it takes to drink a coffee.",
+    body: "Short, friendly modules, each about the length of a coffee break.",
   },
   {
     icon: Timer,
     title: "Your team learns a little each day",
-    body: "No big course to block out a Friday for. Just one small thing at a time.",
+    body: "No big course to block out a Friday for. One small thing at a time.",
   },
 ];
 
-const features = [
-  {
-    icon: Timer,
-    title: "Short daily modules",
-    body: "Five minutes or less. Easy to start, easy to finish.",
-  },
-  {
-    icon: MessageCircleHeart,
-    title: "Roleplay conversations",
-    body: "Practice the tricky chat before it happens, with someone patient on the other side.",
-  },
-  {
-    icon: BarChart3,
-    title: "Insights for leaders",
-    body: "See where people feel confident, and where a little help would go a long way.",
-  },
+const gaps = [
+  { label: "Customer conversations", value: 82 },
+  { label: "Security basics", value: 64 },
+  { label: "Expense process", value: 38 },
 ];
+
+function SectionHeading({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="max-w-xl text-left">
+      <p className="mb-3 text-sm font-medium text-violet-300">{eyebrow}</p>
+      <h2 className="text-gradient text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+        {title}
+      </h2>
+      {children && <p className="mt-4 leading-relaxed text-zinc-400">{children}</p>}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -87,14 +95,29 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* 2. How it works */}
+      {/* 2. Problem */}
+      <section className="mx-auto max-w-3xl px-4 py-24 text-center">
+        <Reveal className="space-y-5">
+          <p className="text-sm font-medium text-violet-300">Sound familiar?</p>
+          <h2 className="text-gradient text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Remember your last onboarding week?
+          </h2>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-zinc-400">
+            A stack of long documents, a few slide decks, and a hope that
+            something stuck. Most of it was forgotten by Friday. Was that ever
+            really your team&apos;s fault?
+          </p>
+        </Reveal>
+      </section>
+
+      {/* 3. How it works */}
       <section className="mx-auto max-w-6xl px-4 py-24">
         <Reveal className="mx-auto mb-14 max-w-xl text-center">
           <p className="mb-3 text-sm font-medium text-violet-300">How it works</p>
           <h2 className="text-gradient text-3xl font-semibold tracking-tight sm:text-4xl">
             Where would you like to start?
           </h2>
-          <p className="mt-3 text-zinc-400">Three small steps. No setup, no training manual.</p>
+          <p className="mt-3 text-zinc-400">Three small steps. No setup, no manual.</p>
         </Reveal>
         <div className="grid gap-4 md:grid-cols-3">
           {steps.map((s, i) => (
@@ -114,49 +137,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. What you get */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <Reveal className="mx-auto mb-14 max-w-xl text-center">
-          <p className="mb-3 text-sm font-medium text-violet-300">What you get</p>
-          <h2 className="text-gradient text-3xl font-semibold tracking-tight sm:text-4xl">
-            What would make learning easier for your team?
-          </h2>
-        </Reveal>
-        <div className="grid gap-4 md:grid-cols-3">
-          {features.map((f, i) => (
-            <Reveal key={f.title} delay={i * 0.1}>
-              <div className="glass glow-border h-full rounded-2xl p-6 text-left">
-                <span className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b from-violet-500/30 to-indigo-600/20 shadow-[0_0_30px_-8px_rgba(139,92,246,0.7)]">
-                  <f.icon className="h-5 w-5 text-violet-200" strokeWidth={1.6} />
-                </span>
-                <h3 className="mb-1.5 text-lg font-medium tracking-tight">{f.title}</h3>
-                <p className="text-sm leading-relaxed text-zinc-400">{f.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* 4. Social proof (placeholder) */}
-      <section className="mx-auto max-w-3xl px-4 py-24">
+      {/* 4. For employees */}
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
         <Reveal>
-          <figure className="glass rounded-3xl p-8 text-center sm:p-12">
-            <blockquote className="text-xl font-medium leading-snug tracking-tight sm:text-2xl">
-              &ldquo;Placeholder quote: this is where a real leader tells us, in
-              their own words, what changed for their team.&rdquo;
-            </blockquote>
-            <figcaption className="mt-6 text-sm text-zinc-500">
-              Name Surname · Role, Company
-              <span className="ml-2 rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-500">
-                placeholder
+          <SectionHeading eyebrow="For your team" title="What if learning felt like a five-minute breather?">
+            Each day there&apos;s one small lesson, short enough to fit between
+            meetings. Then comes the part people actually remember: a friendly
+            practice chat, where they can try out a tricky conversation with
+            someone patient, and no one is watching.
+          </SectionHeading>
+        </Reveal>
+
+        <Reveal delay={0.12}>
+          <div className="glass glow-border space-y-3 rounded-3xl p-5">
+            <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+              <div>
+                <p className="text-xs text-zinc-500">Today&apos;s lesson</p>
+                <p className="font-medium tracking-tight">Handling a frustrated customer</p>
+              </div>
+              <span className="flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-400">
+                <Clock className="h-3 w-3" /> 4 min
               </span>
-            </figcaption>
-          </figure>
+            </div>
+            <div className="space-y-2.5 px-1 pt-1 text-sm">
+              <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-white/[0.06] px-4 py-2.5 text-zinc-200">
+                I&apos;ve been waiting a week for a reply. What happened?
+              </p>
+              <p className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-b from-violet-500 to-indigo-600 px-4 py-2.5 text-white">
+                I&apos;m really sorry about the wait. Can I look into it right now?
+              </p>
+              <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-white/[0.06] px-4 py-2.5 text-zinc-400">
+                That&apos;s a kind start. How might you find out what went wrong?
+              </p>
+            </div>
+          </div>
         </Reveal>
       </section>
 
-      {/* 5. Final CTA */}
-      <section className="relative mx-auto max-w-4xl px-4 pb-28 pt-12">
+      {/* 5. For leaders */}
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 md:grid-cols-2">
+        <Reveal delay={0.12} className="order-2 md:order-1">
+          <div className="glass glow-border space-y-5 rounded-3xl p-6">
+            <div>
+              <p className="text-xs text-zinc-500">Where would a little help go a long way?</p>
+              <p className="font-medium tracking-tight">Team confidence, this month</p>
+            </div>
+            <ul className="space-y-4">
+              {gaps.map((g) => (
+                <li key={g.label}>
+                  <div className="mb-1.5 flex justify-between text-sm">
+                    <span className="text-zinc-300">{g.label}</span>
+                    <span className="tabular-nums text-zinc-500">{g.value}%</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-300"
+                      style={{ width: `${g.value}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-zinc-500">Example numbers, just to show the idea.</p>
+          </div>
+        </Reveal>
+
+        <Reveal className="order-1 md:order-2">
+          <SectionHeading eyebrow="For leaders" title="Wouldn't it help to see where your team needs you?">
+            Nimbus quietly shows where people feel confident and where a bit of
+            support would matter. And when something changes, a new policy or a
+            new product, you can share it with everyone as short lessons the
+            same afternoon.
+          </SectionHeading>
+          <div className="mt-6 flex items-center gap-2 text-sm text-zinc-400">
+            <Rocket className="h-4 w-4 text-violet-300" />
+            From a new document to a new lesson in minutes.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 6. Final CTA */}
+      <section className="relative mx-auto max-w-4xl px-4 pb-28 pt-16">
         <div
           aria-hidden
           className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[320px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/20 blur-[110px]"
@@ -166,7 +227,7 @@ export default function Home() {
             Shall we try it with one of yours?
           </h2>
           <p className="mx-auto max-w-md text-zinc-400">
-            Pick a document you&apos;ve been meaning to share. It takes a
+            Pick a document you&apos;ve been meaning to share. It only takes a
             moment, and there&apos;s nothing to commit to.
           </p>
           <Button asChild variant="accent" size="lg">
