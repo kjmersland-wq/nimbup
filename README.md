@@ -23,10 +23,16 @@ npx wrangler secret put ANTHROPIC_API_KEY  # once per Worker
 npm run deploy                           # build and deploy
 ```
 
-If you build on Cloudflare (Workers Builds), set the build command to
-`npx opennextjs-cloudflare build` and the deploy command to
-`npx opennextjs-cloudflare deploy`. Local development still uses `npm run dev`
-with `.env.local`.
+`npm run build` runs the OpenNext build, which in turn runs the plain Next.js
+build (`npm run build:next`) and writes the Worker to `.open-next/`. That means
+Cloudflare's default Workers Builds settings work as they are:
+
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+
+Local development still uses `npm run dev` with `.env.local`. Set
+`ANTHROPIC_API_KEY` in the Worker's settings (or with the secret command
+above) so the upload can reach Claude.
 
 ## Brand
 
